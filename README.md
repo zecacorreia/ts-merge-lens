@@ -3,10 +3,10 @@
 CLI that detects _semantic interferences_ in merges of TypeScript projects: merges that git
 integrates without a textual conflict but that break the behaviour one of the developers expected.
 
-> **Status: phase 3 of 4.** Scenario extraction, AST annotation (Left/Right/Base), build conflicts
-> and the OA, DF and CF analyses, the refactoring filter, confidence ranking and JSON/SARIF output
-> work. The evaluation scripts are phase 4; the dynamic analysis and the GitHub Action are an
-> extension. None of this has been evaluated on real projects yet.
+> **Status: phase 4 of 4 (tooling).** Scenario extraction, AST annotation (Left/Right/Base), build
+> conflicts, the OA, DF and CF analyses, the refactoring filter, confidence ranking, JSON/SARIF
+> output and the evaluation scripts (`eval/`) work. **No evaluation on real projects has been run
+> yet, so there are no results.** The dynamic analysis and the GitHub Action are an extension.
 
 ## Install
 
@@ -85,6 +85,14 @@ and call chains in `properties`.
 - The refactoring filter is a token-level heuristic; it keeps an alert when in doubt (D25).
 
 Design decisions and deviations from the reference papers: [docs/decisions.md](docs/decisions.md).
+
+## Evaluation
+
+`node eval/eval.mjs mine | sheet | run | metrics` mines merges from repositories you cloned,
+builds the sheet two reviewers fill in blind, runs the configurations B0 (git), B1 (`tsc` only),
+B2 (OA by identifier name, no types) and B3 (complete) ten times each, and computes the confusion
+matrix, precision, recall, F1, accuracy and median time. Protocol, definitions and threats to
+validity: [eval/README.md](eval/README.md).
 
 ## Development
 

@@ -230,9 +230,9 @@ export abstract class FlowWalker<S extends WalkState<S>> {
       if (!declaration.initializer) continue;
       this.expression(declaration.initializer, act, st);
       for (const name of boundIdentifiers(declaration.name)) {
-        const symbol = this.ctx.checker.getSymbolAtLocation(name);
-        if (!symbol) continue;
-        this.onWrite({ root: symbol, path: [], lowConfidence: false }, declaration, act, st);
+        const root = this.ctx.resolver.rootOfDeclaration(name);
+        if (!root) continue;
+        this.onWrite({ root, path: [], lowConfidence: false }, declaration, act, st);
       }
     }
   }
@@ -322,9 +322,8 @@ export abstract class FlowWalker<S extends WalkState<S>> {
         }
         this.expression(property.initializer, act, st);
       } else if (ts.isShorthandPropertyAssignment(property)) {
-        const symbol = this.ctx.checker.getShorthandAssignmentValueSymbol(property);
-        if (symbol)
-          this.onRead?.({ root: symbol, path: [], lowConfidence: false }, property, act, st);
+        const root = this.ctx.resolver.rootOfShorthand(property);
+        if (root) this.onRead?.({ root, path: [], lowConfidence: false }, property, act, st);
       } else if (ts.isSpreadAssignment(property)) {
         this.expression(property.expression, act, st);
       } else {
@@ -380,8 +379,8 @@ export abstract class FlowWalker<S extends WalkState<S>> {
   private writeTarget(target: Target, site: ts.Node, act: Activation<S>, st: S): void {
     let raw: StateElement | undefined;
     if (ts.isShorthandPropertyAssignment(target)) {
-      const symbol = this.ctx.checker.getShorthandAssignmentValueSymbol(target);
-      raw = symbol && { root: symbol, path: [], lowConfidence: false };
+      const root = this.ctx.resolver.rootOfShorthand(target);
+      raw = root && { root, path: [], lowConfidence: false };
     } else {
       raw = this.ctx.resolver.resolve(target);
     }

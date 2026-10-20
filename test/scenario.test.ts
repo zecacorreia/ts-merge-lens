@@ -2,7 +2,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { findUnitsChangedByBoth } from '../src/scenario/changed-units.js';
-import { classifyMerge, scenarioFromDirs, scenarioFromGit } from '../src/scenario/scenario.js';
+import {
+  classifyMerge,
+  materializeScenario,
+  scenarioFromDirs,
+  scenarioFromGit,
+} from '../src/scenario/scenario.js';
 import { CANONICAL, buildMergeFixture, canonicalFixture } from './helpers/canonical.js';
 import { FixtureRepo, cleanupTempDirs, makeTempDir, writeFiles } from './helpers/fixture-repo.js';
 
@@ -162,5 +167,40 @@ describe('scenarioFromDirs', () => {
     expect(() =>
       scenarioFromDirs({ base: missing, left: missing, right: missing, merge: missing }),
     ).toThrow(/not found/);
+  });
+});
+
+describe('linking node_modules', () => {
+  it('shows dependencies in every checkout and never deletes them on dispose', () => {
+    const fixture = canonicalFixture();
+    const modules = path.join(fixture.repo.dir, 'node_modules', 'dep');
+    writeFiles(modules, { 'index.d.ts': 'export declare const dep: number;\n' });
+    const sentinel = path.join(modules, 'index.d.ts');
+
+    const classified = classifyMerge(fixture.repo.dir, fixture.merge);
+    if (classified.status !== 'candidate') throw new Error('expected a candidate');
+    const scenario = materializeScenario(fixture.repo.dir, classified.commits, {
+      linkNodeModules: true,
+    });
+    for (const dir of [
+      scenario.dirs.base,
+      scenario.dirs.left,
+      scenario.dirs.right,
+      scenario.dirs.merge,
+    ]) {
+      expect(fs.existsSync(path.join(dir, 'node_modules', 'dep', 'index.d.ts'))).toBe(true);
+    }
+    scenario.dispose();
+    expect(fs.existsSync(scenario.dirs.merge)).toBe(false);
+    expect(fs.existsSync(sentinel)).toBe(true);
+  });
+
+  it('does not link by default', () => {
+    const fixture = canonicalFixture();
+    writeFiles(path.join(fixture.repo.dir, 'node_modules', 'dep'), { 'a.js': '' });
+    const result = scenarioFromGit(fixture.repo.dir, fixture.merge);
+    if (result.status !== 'ok') throw new Error('expected ok');
+    expect(fs.existsSync(path.join(result.scenario.dirs.merge, 'node_modules'))).toBe(false);
+    result.scenario.dispose();
   });
 });

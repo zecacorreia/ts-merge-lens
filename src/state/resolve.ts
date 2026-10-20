@@ -1,7 +1,7 @@
 import ts from 'typescript';
 import type { LimitationKind } from '../limitations.js';
-import { ANY_INDEX } from './element.js';
-import type { StateElement } from './element.js';
+import { ANY_INDEX, nameRoot } from './element.js';
+import type { Root, StateElement } from './element.js';
 
 /**
  * How the function being analysed relates to the entry function: what its `this` and its
@@ -11,7 +11,7 @@ export interface Frame {
   /** The element `this` stands for; absent for plain calls and constructors. */
   thisElement: StateElement | undefined;
   /** Parameter -> argument element; `null` when the argument is not a trackable reference. */
-  params: ReadonlyMap<ts.Symbol, StateElement | null>;
+  params: ReadonlyMap<Root, StateElement | null>;
 }
 
 export type LimitationSink = (kind: LimitationKind, node: ts.Node) => void;
@@ -28,10 +28,27 @@ function propertySegment(name: string): string {
 
 /** Turns lvalue-like expressions into state elements using the type checker. */
 export class ElementResolver {
+  /**
+   * `symbol`: identity from the type checker. `name`: identity from identifier text only, with no
+   * type information at all (the typeless baseline of the evaluation).
+   */
   constructor(
     private readonly checker: ts.TypeChecker,
     private readonly limit: LimitationSink,
+    private readonly identity: 'symbol' | 'name' = 'symbol',
   ) {}
+
+  /** The root a declared name (variable, parameter, binding) stands for. */
+  rootOfDeclaration(name: ts.Identifier): Root | undefined {
+    if (this.identity === 'name') return nameRoot(name.text);
+    return this.checker.getSymbolAtLocation(name);
+  }
+
+  /** The root a shorthand property `{ x }` used as an assignment target stands for. */
+  rootOfShorthand(property: ts.ShorthandPropertyAssignment): Root | undefined {
+    if (this.identity === 'name') return nameRoot(property.name.text);
+    return this.checker.getShorthandAssignmentValueSymbol(property);
+  }
 
   /**
    * The element an expression denotes, in terms of the function that contains it (`this` and
@@ -90,6 +107,10 @@ export class ElementResolver {
   }
 
   private resolveIdentifier(identifier: ts.Identifier): StateElement | undefined {
+    if (this.identity === 'name') {
+      if (identifier.text === 'undefined') return undefined;
+      return { root: nameRoot(identifier.text), path: [], lowConfidence: false };
+    }
     let symbol = this.checker.getSymbolAtLocation(identifier);
     if (symbol && symbol.flags & ts.SymbolFlags.Alias)
       symbol = this.checker.getAliasedSymbol(symbol);
@@ -102,6 +123,14 @@ export class ElementResolver {
     access: ts.ElementAccessExpression,
   ): StateElement {
     const argument = access.argumentExpression;
+    if (
+      this.identity === 'name' &&
+      !ts.isStringLiteralLike(argument) &&
+      !ts.isNumericLiteral(argument)
+    ) {
+      this.limit('dynamic-access', access);
+      return this.extend(base, ANY_INDEX, access.expression);
+    }
     const type = this.checker.getTypeAtLocation(argument);
     let segment: string;
     if (ts.isStringLiteralLike(argument)) segment = propertySegment(argument.text);
@@ -116,7 +145,9 @@ export class ElementResolver {
   }
 
   private extend(base: StateElement, segment: string, receiver: ts.Expression): StateElement {
-    const lowConfidence = base.lowConfidence || isAnyLike(this.checker.getTypeAtLocation(receiver));
+    const lowConfidence =
+      this.identity === 'symbol' &&
+      (base.lowConfidence || isAnyLike(this.checker.getTypeAtLocation(receiver)));
     if (lowConfidence && !base.lowConfidence) this.limit('any-type', receiver);
     return { root: base.root, path: [...base.path, segment], lowConfidence };
   }

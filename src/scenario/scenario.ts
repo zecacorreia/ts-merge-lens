@@ -76,8 +76,31 @@ export function classifyMerge(repo: string, rev: string): ClassifiedMerge {
   };
 }
 
+export interface MaterializeOptions {
+  /**
+   * Make the `node_modules` of the repository's working tree visible in each checkout (a link, not
+   * a copy), so the project can be type-checked with its dependencies. They are those installed
+   * for the repository's current state, which may differ from the ones the commit used.
+   */
+  linkNodeModules?: boolean;
+}
+
+/** Removes a link without ever touching what it points to. */
+function removeLink(link: string): void {
+  if (!fs.lstatSync(link, { throwIfNoEntry: false })?.isSymbolicLink()) return;
+  try {
+    fs.unlinkSync(link);
+  } catch {
+    fs.rmdirSync(link); // Windows junctions are removed as directories
+  }
+}
+
 /** Checks out Base, Left, Right and Merge into fresh temporary directories. */
-export function materializeScenario(repo: string, commits: MergeCommits): Scenario {
+export function materializeScenario(
+  repo: string,
+  commits: MergeCommits,
+  options: MaterializeOptions = {},
+): Scenario {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'tsmergelens-'));
   const dirs: ScenarioDirs = {
     base: path.join(root, 'base'),
@@ -85,7 +108,10 @@ export function materializeScenario(repo: string, commits: MergeCommits): Scenar
     right: path.join(root, 'right'),
     merge: path.join(root, 'merge'),
   };
+  const links: string[] = [];
   const dispose = (): void => {
+    // Links first: a recursive delete must never be able to reach the linked directory.
+    for (const link of links) removeLink(link);
     fs.rmSync(root, { recursive: true, force: true });
   };
   try {
@@ -93,6 +119,15 @@ export function materializeScenario(repo: string, commits: MergeCommits): Scenar
     exportTree(repo, commits.left, dirs.left);
     exportTree(repo, commits.right, dirs.right);
     exportTree(repo, commits.merge, dirs.merge);
+    const modules = path.join(repo, 'node_modules');
+    if (options.linkNodeModules && fs.existsSync(modules)) {
+      for (const dir of [dirs.base, dirs.left, dirs.right, dirs.merge]) {
+        const link = path.join(dir, 'node_modules');
+        if (fs.existsSync(link)) continue; // the commit tracks its own
+        fs.symlinkSync(path.resolve(modules), link, 'junction');
+        links.push(link);
+      }
+    }
   } catch (error) {
     dispose();
     throw error;

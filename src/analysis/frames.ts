@@ -1,6 +1,7 @@
 import ts from 'typescript';
 import type { FunctionWithBody } from '../scenario/functions.js';
-import type { StateElement } from '../state/element.js';
+import { symbolOf } from '../state/element.js';
+import type { Root, StateElement } from '../state/element.js';
 import type { Frame } from '../state/resolve.js';
 import type { CallNode } from './calls.js';
 import type { AnalysisContext } from './context.js';
@@ -24,10 +25,10 @@ export function frameForCall(
     thisElement = receiver && ctx.resolver.rebase(receiver, frame, 'reference');
   }
 
-  const params = new Map<ts.Symbol, StateElement | null>();
+  const params = new Map<Root, StateElement | null>();
   target.parameters.forEach((parameter, index) => {
     if (!ts.isIdentifier(parameter.name)) return;
-    const symbol = ctx.checker.getSymbolAtLocation(parameter.name);
+    const symbol = ctx.resolver.rootOfDeclaration(parameter.name);
     if (!symbol) return;
     const argument = node.arguments?.[index];
     const raw =
@@ -37,8 +38,9 @@ export function frameForCall(
   return { thisElement, params };
 }
 
-export function isDeclaredWithin(symbol: ts.Symbol, fn: ts.Node): boolean {
-  return (symbol.declarations ?? []).some(
+export function isDeclaredWithin(root: Root, fn: ts.Node): boolean {
+  const symbol = symbolOf(root); // a root by name has no declarations: it is never "local"
+  return (symbol?.declarations ?? []).some(
     (declaration) =>
       declaration.getSourceFile() === fn.getSourceFile() &&
       declaration.pos >= fn.pos &&

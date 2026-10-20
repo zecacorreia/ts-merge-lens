@@ -18,6 +18,8 @@ export interface AnalysisInput {
   program: ts.Program;
   mergeDir: string;
   annotation: ScenarioAnnotation;
+  /** How state elements are identified: by resolved symbol (default) or by bare name (baseline). */
+  identity?: 'symbol' | 'name';
 }
 
 export interface JumpTarget<S> {
@@ -53,9 +55,13 @@ export class AnalysisContext {
   constructor(readonly input: AnalysisInput) {
     this.checker = input.program.getTypeChecker();
     this.limits = new Limitations(input.mergeDir);
-    this.resolver = new ElementResolver(this.checker, (kind, node) => {
-      this.limits.add(kind, node);
-    });
+    this.resolver = new ElementResolver(
+      this.checker,
+      (kind, node) => {
+        this.limits.add(kind, node);
+      },
+      input.identity ?? 'symbol',
+    );
     this.calls = new CallResolver(input.program, this.checker);
     for (const file of input.annotation.files) this.annotations.set(file.file, file);
   }

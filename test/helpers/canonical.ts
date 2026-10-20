@@ -2,7 +2,7 @@ import { FixtureRepo } from './fixture-repo.js';
 
 /** The overriding-assignment example of the project description, one statement per line. */
 export const CANONICAL = {
-  base: `class Text {
+  base: `export class Text {
   text = "";
   fixes = 0;
   comments = 0;
@@ -20,7 +20,7 @@ export const CANONICAL = {
   }
 }
 `,
-  left: `class Text {
+  left: `export class Text {
   text = "";
   fixes = 0;
   comments = 0;
@@ -39,7 +39,7 @@ export const CANONICAL = {
   }
 }
 `,
-  right: `class Text {
+  right: `export class Text {
   text = "";
   fixes = 0;
   comments = 0;
@@ -58,7 +58,7 @@ export const CANONICAL = {
   }
 }
 `,
-  merge: `class Text {
+  merge: `export class Text {
   text = "";
   fixes = 0;
   comments = 0;

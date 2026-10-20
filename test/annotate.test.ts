@@ -22,7 +22,7 @@ describe('annotateFile', () => {
     expect(origins.get('this.countDuplicatedWords();')).toBe('R');
     expect(origins.get('this.countComments();')).toBe('Base');
     expect(origins.get('generateReport(): void {')).toBe('Base');
-    expect(origins.get('class Text {')).toBe('Base');
+    expect(origins.get('export class Text {')).toBe('Base');
   });
 
   it('annotates by AST position, not by line', () => {

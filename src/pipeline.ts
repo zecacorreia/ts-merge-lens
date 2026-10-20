@@ -41,6 +41,8 @@ export interface AnalyzeOptions {
   /** Call nesting followed by OA; 0 is the intraprocedural analysis. */
   depth: number;
   analyses: readonly AnalysisName[];
+  /** `name` identifies state by identifier text only (the typeless baseline); default `symbol`. */
+  identity?: 'symbol' | 'name';
   /** How alerts of sides whose changes are all refactorings are treated; default `off`. */
   refactoringFilter?: RefactoringFilterMode;
 }
@@ -145,6 +147,7 @@ export function analyze(options: AnalyzeOptions): AnalysisReport {
         mergeDir: scenario.dirs.merge,
         annotation,
         units: report.units,
+        ...(options.identity ? { identity: options.identity } : {}),
       };
       const context = new AnalysisContext(input);
       const skipped = new Set<string>();

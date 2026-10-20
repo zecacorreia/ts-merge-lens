@@ -1,7 +1,32 @@
 import type ts from 'typescript';
 
-/** A resolved variable/class symbol, or the receiver `this` of the function being analysed. */
-export type Root = ts.Symbol | 'this';
+/**
+ * Root of a state element when identity is by name only (the typeless baseline): two variables
+ * with the same name are the same element, whatever their scope.
+ */
+export interface NameRoot {
+  readonly byName: true;
+  readonly name: string;
+}
+
+const nameRoots = new Map<string, NameRoot>();
+
+export function nameRoot(name: string): NameRoot {
+  let root = nameRoots.get(name);
+  if (!root) {
+    root = { byName: true, name };
+    nameRoots.set(name, root);
+  }
+  return root;
+}
+
+/** A resolved variable/class symbol, the receiver `this` of the function analysed, or a bare name. */
+export type Root = ts.Symbol | NameRoot | 'this';
+
+/** The symbol of a root, if identity is by symbol. */
+export function symbolOf(root: Root): ts.Symbol | undefined {
+  return root === 'this' || 'byName' in root ? undefined : root;
+}
 
 /** Path segment for an index whose value is unknown (`a[i]`): it may be any index. */
 export const ANY_INDEX = '[*]';
@@ -24,6 +49,7 @@ let nextSymbolId = 1;
 
 function rootId(root: Root): string {
   if (root === 'this') return 'this';
+  if ('byName' in root) return `n:${root.name}`;
   let id = symbolIds.get(root);
   if (id === undefined) {
     id = nextSymbolId++;

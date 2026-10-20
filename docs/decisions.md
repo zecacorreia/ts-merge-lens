@@ -344,3 +344,59 @@ change a confidence and fail. Twelve deliberate mutations of DF, CF, the summari
 were run against the suite: eleven made an oracle fail (one only after the new oracle r10 was
 added), and one ("no rename pairing") is an equivalent mutant, since a rename is also explained as
 an extraction plus an inlining. As in phase 2, oracles and implementation share an author.
+
+## Phase 4
+
+Phase 4 delivers the _means_ to evaluate (`eval/`, `src/eval/`), not an evaluation: no real
+repository was mined or analysed, so there are no results to report. See `eval/README.md` for the
+protocol.
+
+### D29. B2: state identified by name
+
+`ElementResolver` has an `identity` mode. In `name` mode a variable is identified by its identifier
+text alone (`nameRoot`), whatever its scope, import alias or type: shadowed variables, locals of
+different functions with the same name, and equally named parameters collapse into one element;
+`any`-typed receivers no longer lower confidence; non-literal keys are `[*]` by syntax only.
+Calls are still resolved with the type checker (there is no sensible typeless way to find a
+callee), so B2 measures the value of resolved symbols for state identity, not of types in general.
+An oracle (`negative/07-shadowed-variable`) alerts in `name` mode and not in `symbol` mode, which
+is the difference B2 is meant to expose.
+
+### D30. Dependencies in the checkouts
+
+`materializeScenario(..., { linkNodeModules: true })` links the repository's `node_modules` into
+the four checkouts (a directory junction on Windows, a symlink elsewhere), only for the
+evaluation. Disposal removes every link _before_ the recursive delete and the tests check that the
+linked directory survives it. The dependencies are those installed for the repository's current
+state, not the ones the commit used; a mismatch makes the compile criterion fail rather than pass.
+
+### D31. Mining criteria
+
+`mine` keeps a merge when: two parents; no textual conflict (D2); not fast-forward, criss-cross,
+octopus or without a common ancestor; Left and Right changed a common `.ts`/`.tsx` file and the same
+function (D4); and, by default, Base, Left and Right type-check with no diagnostic. Requiring all of
+Base, Left and Right means a Merge-only compile error is a genuine build conflict, which B1 needs.
+`--require-compile base|none` relax it. The selection does not use the tool's verdict. The funnel
+(merge commits, each discard reason, no shared file, no shared function, structural, compile
+failures, selected) is recorded per repository. Sampling is a seeded shuffle, applied before the
+expensive compile check, so `--limit N --seed S` is reproducible.
+
+### D32. Labels and metrics
+
+The sheet has no tool output (labelling must be blind) and refuses to be regenerated over an
+existing file; `--update` keeps every label. A scenario's truth is the two reviewers' common label,
+or the `consensus` column where they differ; unlabelled and unresolved rows are excluded and
+counted. The report gives TP/FP/TN/FN, precision, recall, F1 and accuracy, with `n/a` (not 0 or
+
+1. for a zero denominator, Cohen's kappa over the rows both reviewers labelled, and the number of
+   failed runs. A scenario is predicted positive when the configuration raised an alert of at least
+   `--min-confidence`.
+
+### D33. Timing
+
+Each configuration runs `--repetitions` (10) times per scenario in the same process; a scenario's
+time is the median of its repetitions and the report shows the median over scenarios. Checkout is
+excluded; everything the configuration does with the four versions is included. B1 calls the build
+check directly (no annotation), B0 is `git merge-tree`. Because the library files stay parsed, the
+numbers are warm times, not a CLI cold start; this is stated in the report documentation. The
+default analysis in B3 uses the CLI defaults (all analyses, `downgrade` filter).
