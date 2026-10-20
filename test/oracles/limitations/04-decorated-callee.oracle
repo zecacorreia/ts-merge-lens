@@ -1,0 +1,47 @@
+# A decorated callee: the decorator may change what the method does; the alert is kept and counted.
+--- expect
+{"alerts":[{"element":"this.v","first":"Left Job.start","second":"Right Job.run"}],"limitations":["decorators"]}
+--- base
+function log(_target: unknown, _context: ClassMethodDecoratorContext): void {}
+export class Job {
+  v = 0;
+  run(): number {
+    const a = 1;
+    const b = 2;
+    return a + b;
+  }
+  @log
+  start(): void {
+    this.v = 1;
+  }
+}
+--- left
+function log(_target: unknown, _context: ClassMethodDecoratorContext): void {}
+export class Job {
+  v = 0;
+  run(): number {
+    this.start();
+    const a = 1;
+    const b = 2;
+    return a + b;
+  }
+  @log
+  start(): void {
+    this.v = 1;
+  }
+}
+--- right
+function log(_target: unknown, _context: ClassMethodDecoratorContext): void {}
+export class Job {
+  v = 0;
+  run(): number {
+    const a = 1;
+    const b = 2;
+    this.v = 2;
+    return a + b;
+  }
+  @log
+  start(): void {
+    this.v = 1;
+  }
+}

@@ -1,0 +1,32 @@
+# A static field written by both sides.
+--- expect
+{"alerts":[{"element":"Config.level","first":"Left Config.run","second":"Right Config.run"}]}
+--- base
+export class Config {
+  static level = 0;
+  static run(): number {
+    const a = 1;
+    const b = 2;
+    return a + b;
+  }
+}
+--- left
+export class Config {
+  static level = 0;
+  static run(): number {
+    Config.level = 1;
+    const a = 1;
+    const b = 2;
+    return a + b;
+  }
+}
+--- right
+export class Config {
+  static level = 0;
+  static run(): number {
+    const a = 1;
+    const b = 2;
+    Config.level = 2;
+    return a + b;
+  }
+}

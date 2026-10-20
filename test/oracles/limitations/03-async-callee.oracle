@@ -1,0 +1,41 @@
+# An async callee: the alert is kept (calls are inlined in program order) but counted as uncertain.
+--- expect
+{"alerts":[{"element":"this.v","first":"Left Job.start","second":"Right Job.run"}],"limitations":["async-order"]}
+--- base
+export class Job {
+  v = 0;
+  run(): number {
+    const a = 1;
+    const b = 2;
+    return a + b;
+  }
+  async start(): Promise<void> {
+    this.v = 1;
+  }
+}
+--- left
+export class Job {
+  v = 0;
+  run(): number {
+    void this.start();
+    const a = 1;
+    const b = 2;
+    return a + b;
+  }
+  async start(): Promise<void> {
+    this.v = 1;
+  }
+}
+--- right
+export class Job {
+  v = 0;
+  run(): number {
+    const a = 1;
+    const b = 2;
+    this.v = 2;
+    return a + b;
+  }
+  async start(): Promise<void> {
+    this.v = 1;
+  }
+}

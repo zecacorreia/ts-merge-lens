@@ -1,0 +1,23 @@
+# a[0] and a[1] are different elements.
+--- expect
+{"alerts":[]}
+--- base
+export function run(a: number[]): number {
+  const c = 1;
+  const d = 2;
+  return c + d;
+}
+--- left
+export function run(a: number[]): number {
+  a[0] = 1;
+  const c = 1;
+  const d = 2;
+  return c + d;
+}
+--- right
+export function run(a: number[]): number {
+  const c = 1;
+  const d = 2;
+  a[1] = 2;
+  return c + d;
+}

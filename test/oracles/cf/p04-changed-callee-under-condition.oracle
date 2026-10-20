@@ -1,0 +1,51 @@
+# A call to a function Right changed sits under a condition Left influences.
+--- expect
+{"analyses":["cf"],"alerts":[{"type":"CF","element":"this.x","first":"Left K.run","second":"Right K.run"}]}
+--- base
+export class K {
+  x = 0;
+  n = 0;
+  run(): number {
+    const a = 1;
+    if (this.x > 0) {
+      this.log();
+    }
+    const b = 2;
+    return a + b;
+  }
+  log(): void {
+  }
+}
+--- left
+export class K {
+  x = 0;
+  n = 0;
+  run(): number {
+    this.x = 1;
+    const a = 1;
+    if (this.x > 0) {
+      this.log();
+    }
+    const b = 2;
+    return a + b;
+  }
+  log(): void {
+  }
+}
+--- right
+export class K {
+  x = 0;
+  n = 0;
+  run(): number {
+    const a = 1;
+    if (this.x > 0) {
+      this.log();
+    }
+    const b = 2;
+    this.n = 5;
+    return a + b;
+  }
+  log(): void {
+    this.n = 2;
+  }
+}

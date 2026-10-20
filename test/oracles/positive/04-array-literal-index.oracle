@@ -1,0 +1,23 @@
+# The same literal index a[0] is written by both sides.
+--- expect
+{"alerts":[{"element":"a[0]","first":"Left run","second":"Right run"}]}
+--- base
+export function run(a: number[]): number {
+  const c = 1;
+  const d = 2;
+  return c + d;
+}
+--- left
+export function run(a: number[]): number {
+  a[0] = 1;
+  const c = 1;
+  const d = 2;
+  return c + d;
+}
+--- right
+export function run(a: number[]): number {
+  const c = 1;
+  const d = 2;
+  a[0] = 2;
+  return c + d;
+}

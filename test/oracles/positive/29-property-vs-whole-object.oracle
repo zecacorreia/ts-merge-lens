@@ -1,0 +1,26 @@
+# Left writes state.a, Right replaces the whole state object.
+--- expect
+{"alerts":[{"element":"state","first":"Left run","second":"Right run"}]}
+--- base
+let state = { a: 0 };
+export function run(): number {
+  const c = 1;
+  const d = 2;
+  return c + d + state.a;
+}
+--- left
+let state = { a: 0 };
+export function run(): number {
+  state.a = 1;
+  const c = 1;
+  const d = 2;
+  return c + d + state.a;
+}
+--- right
+let state = { a: 0 };
+export function run(): number {
+  const c = 1;
+  const d = 2;
+  state = { a: 2 };
+  return c + d + state.a;
+}

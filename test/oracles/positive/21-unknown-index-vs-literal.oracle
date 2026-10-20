@@ -1,0 +1,23 @@
+# a[i] may be a[0]: reported, with low confidence.
+--- expect
+{"alerts":[{"element":"a[0]","first":"Left run","second":"Right run","confidence":"low"}],"limitations":["dynamic-access"]}
+--- base
+export function run(a: number[], i: number): number {
+  const c = 1;
+  const d = 2;
+  return c + d + i;
+}
+--- left
+export function run(a: number[], i: number): number {
+  a[i] = 1;
+  const c = 1;
+  const d = 2;
+  return c + d + i;
+}
+--- right
+export function run(a: number[], i: number): number {
+  const c = 1;
+  const d = 2;
+  a[0] = 2;
+  return c + d + i;
+}

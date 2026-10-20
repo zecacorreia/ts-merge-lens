@@ -1,0 +1,32 @@
+# Both sides assign this.size inside the same method.
+--- expect
+{"alerts":[{"element":"this.size","first":"Left Box.run","second":"Right Box.run"}]}
+--- base
+export class Box {
+  size = 0;
+  run(): number {
+    const a = 1;
+    const b = 2;
+    return a + b;
+  }
+}
+--- left
+export class Box {
+  size = 0;
+  run(): number {
+    this.size = 1;
+    const a = 1;
+    const b = 2;
+    return a + b;
+  }
+}
+--- right
+export class Box {
+  size = 0;
+  run(): number {
+    const a = 1;
+    const b = 2;
+    this.size = 2;
+    return a + b;
+  }
+}

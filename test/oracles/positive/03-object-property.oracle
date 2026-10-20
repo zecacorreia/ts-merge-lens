@@ -1,0 +1,35 @@
+# Same property of a parameter object written by both sides.
+--- expect
+{"alerts":[{"element":"p.x","first":"Left run","second":"Right run"}]}
+--- base
+interface Point {
+  x: number;
+  y: number;
+}
+export function run(p: Point): number {
+  const a = 1;
+  const b = 2;
+  return p.y + a + b;
+}
+--- left
+interface Point {
+  x: number;
+  y: number;
+}
+export function run(p: Point): number {
+  p.x = 1;
+  const a = 1;
+  const b = 2;
+  return p.y + a + b;
+}
+--- right
+interface Point {
+  x: number;
+  y: number;
+}
+export function run(p: Point): number {
+  const a = 1;
+  const b = 2;
+  p.x = 2;
+  return p.y + a + b;
+}

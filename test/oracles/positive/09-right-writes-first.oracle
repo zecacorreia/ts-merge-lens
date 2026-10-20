@@ -1,0 +1,26 @@
+# Right writes first and Left later: Left overrides Right.
+--- expect
+{"alerts":[{"element":"level","first":"Right run","second":"Left run"}]}
+--- base
+let level = 0;
+export function run(): number {
+  const a = 1;
+  const b = 2;
+  return a + b + level;
+}
+--- left
+let level = 0;
+export function run(): number {
+  const a = 1;
+  const b = 2;
+  level = 1;
+  return a + b + level;
+}
+--- right
+let level = 0;
+export function run(): number {
+  level = 2;
+  const a = 1;
+  const b = 2;
+  return a + b + level;
+}

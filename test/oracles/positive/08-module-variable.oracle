@@ -1,0 +1,26 @@
+# A module-level variable written by both sides.
+--- expect
+{"alerts":[{"element":"mode","first":"Left run","second":"Right run"}]}
+--- base
+let mode = "a";
+export function run(): number {
+  const a = 1;
+  const b = 2;
+  return a + b + mode.length;
+}
+--- left
+let mode = "a";
+export function run(): number {
+  mode = "b";
+  const a = 1;
+  const b = 2;
+  return a + b + mode.length;
+}
+--- right
+let mode = "a";
+export function run(): number {
+  const a = 1;
+  const b = 2;
+  mode = "c";
+  return a + b + mode.length;
+}

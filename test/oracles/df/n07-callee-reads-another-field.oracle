@@ -1,0 +1,89 @@
+# Right calls a getter of a different field.
+--- expect
+{"analyses":["df"],"alerts":[]}
+--- base
+export class Box {
+  v = 0;
+  w = 0;
+  run(): number {
+    const a = 1;
+    const b = 2;
+    return a + b;
+  }
+  setV(): void {
+    this.v = 1;
+  }
+  getV(): number {
+    return this.v;
+  }
+  getW(): number {
+    return this.w;
+  }
+  outer(): number {
+    return this.getV();
+  }
+  read(n: number): number {
+    if (n > 0) {
+      this.read(n - 1);
+    }
+    return this.v;
+  }
+}
+--- left
+export class Box {
+  v = 0;
+  w = 0;
+  run(): number {
+    this.setV();
+    const a = 1;
+    const b = 2;
+    return a + b;
+  }
+  setV(): void {
+    this.v = 1;
+  }
+  getV(): number {
+    return this.v;
+  }
+  getW(): number {
+    return this.w;
+  }
+  outer(): number {
+    return this.getV();
+  }
+  read(n: number): number {
+    if (n > 0) {
+      this.read(n - 1);
+    }
+    return this.v;
+  }
+}
+--- right
+export class Box {
+  v = 0;
+  w = 0;
+  run(): number {
+    const a = 1;
+    const b = 2;
+    const r = this.getW();
+    return a + b;
+  }
+  setV(): void {
+    this.v = 1;
+  }
+  getV(): number {
+    return this.v;
+  }
+  getW(): number {
+    return this.w;
+  }
+  outer(): number {
+    return this.getV();
+  }
+  read(n: number): number {
+    if (n > 0) {
+      this.read(n - 1);
+    }
+    return this.v;
+  }
+}

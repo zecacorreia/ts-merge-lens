@@ -1,0 +1,26 @@
+# Left increments, Right assigns.
+--- expect
+{"alerts":[{"element":"count","first":"Left run","second":"Right run"}]}
+--- base
+export function run(): number {
+  let count = 0;
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- left
+export function run(): number {
+  let count = 0;
+  count++;
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- right
+export function run(): number {
+  let count = 0;
+  const a = 1;
+  const b = 2;
+  count = 0;
+  return a + b;
+}

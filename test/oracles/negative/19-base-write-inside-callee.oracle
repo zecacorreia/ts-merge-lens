@@ -1,0 +1,44 @@
+# A Base callee resets the field between the two writes.
+--- expect
+{"alerts":[]}
+--- base
+export class Acc {
+  v = 0;
+  run(): number {
+    const a = 1;
+    this.reset();
+    const b = 2;
+    return a + b;
+  }
+  reset(): void {
+    this.v = 0;
+  }
+}
+--- left
+export class Acc {
+  v = 0;
+  run(): number {
+    this.v = 1;
+    const a = 1;
+    this.reset();
+    const b = 2;
+    return a + b;
+  }
+  reset(): void {
+    this.v = 0;
+  }
+}
+--- right
+export class Acc {
+  v = 0;
+  run(): number {
+    const a = 1;
+    this.reset();
+    const b = 2;
+    this.v = 2;
+    return a + b;
+  }
+  reset(): void {
+    this.v = 0;
+  }
+}

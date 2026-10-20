@@ -1,0 +1,32 @@
+# The condition is unchanged and untouched by Left; Right adds a statement under it.
+--- expect
+{"analyses":["cf"],"alerts":[]}
+--- base
+export function run(c: boolean): number {
+  let x = 0;
+  const a = 1;
+  if (c) {
+    const b = 2;
+  }
+  return a + x;
+}
+--- left
+export function run(c: boolean): number {
+  let x = 0;
+  const d = 1;
+  const a = 1;
+  if (c) {
+    const b = 2;
+  }
+  return a + x;
+}
+--- right
+export function run(c: boolean): number {
+  let x = 0;
+  const a = 1;
+  if (c) {
+    const b = 2;
+    x = 2;
+  }
+  return a + x;
+}

@@ -1,0 +1,32 @@
+# Left deletes a property, Right assigns it.
+--- expect
+{"alerts":[{"element":"p.x","first":"Left run","second":"Right run"}]}
+--- base
+interface Opt {
+  x?: number;
+}
+export function run(p: Opt): number {
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- left
+interface Opt {
+  x?: number;
+}
+export function run(p: Opt): number {
+  delete p.x;
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- right
+interface Opt {
+  x?: number;
+}
+export function run(p: Opt): number {
+  const a = 1;
+  const b = 2;
+  p.x = 2;
+  return a + b;
+}

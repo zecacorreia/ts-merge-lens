@@ -1,0 +1,26 @@
+# Left replaces the whole object, Right reads one of its properties.
+--- expect
+{"analyses":["df"],"alerts":[{"type":"DF","element":"state.a","first":"Left run","second":"Right run"}]}
+--- base
+let state = { a: 0 };
+export function run(): number {
+  const c = 1;
+  const d = 2;
+  return c + d;
+}
+--- left
+let state = { a: 0 };
+export function run(): number {
+  state = { a: 1 };
+  const c = 1;
+  const d = 2;
+  return c + d;
+}
+--- right
+let state = { a: 0 };
+export function run(): number {
+  const c = 1;
+  const d = 2;
+  const r = state.a;
+  return c + d;
+}

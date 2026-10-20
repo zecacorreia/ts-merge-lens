@@ -1,0 +1,59 @@
+# Right passes this to a method of another object, which writes through that parameter.
+--- expect
+{"alerts":[{"element":"this.count","first":"Left Hub.run","second":"Right Worker.bump"}]}
+--- base
+class Hub {
+  count = 0;
+  worker = new Worker();
+  run(): number {
+    const a = 1;
+    const b = 2;
+    return a + b;
+  }
+}
+class Worker {
+  bump(h: Hub): void {
+    h.count = 5;
+  }
+}
+export function go(hub: Hub): number {
+  return hub.run();
+}
+--- left
+class Hub {
+  count = 0;
+  worker = new Worker();
+  run(): number {
+    this.count = 1;
+    const a = 1;
+    const b = 2;
+    return a + b;
+  }
+}
+class Worker {
+  bump(h: Hub): void {
+    h.count = 5;
+  }
+}
+export function go(hub: Hub): number {
+  return hub.run();
+}
+--- right
+class Hub {
+  count = 0;
+  worker = new Worker();
+  run(): number {
+    const a = 1;
+    const b = 2;
+    this.worker.bump(this);
+    return a + b;
+  }
+}
+class Worker {
+  bump(h: Hub): void {
+    h.count = 5;
+  }
+}
+export function go(hub: Hub): number {
+  return hub.run();
+}

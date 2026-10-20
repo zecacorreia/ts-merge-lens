@@ -1,0 +1,59 @@
+# The canonical example analysed with depth 0 (intraprocedural): the writes are in callees.
+--- expect
+{"depth":0,"alerts":[]}
+--- base
+export class Text {
+  text = "";
+  fixes = 0;
+  comments = 0;
+  generateReport(): void {
+    this.countComments();
+  }
+  countDuplicatedWhitespaces(): void {
+    this.fixes = this.text.split("  ").length;
+  }
+  countComments(): void {
+    this.comments = this.text.split("//").length;
+  }
+  countDuplicatedWords(): void {
+    this.fixes = this.text.split(" ").length;
+  }
+}
+--- left
+export class Text {
+  text = "";
+  fixes = 0;
+  comments = 0;
+  generateReport(): void {
+    this.countDuplicatedWhitespaces();
+    this.countComments();
+  }
+  countDuplicatedWhitespaces(): void {
+    this.fixes = this.text.split("  ").length;
+  }
+  countComments(): void {
+    this.comments = this.text.split("//").length;
+  }
+  countDuplicatedWords(): void {
+    this.fixes = this.text.split(" ").length;
+  }
+}
+--- right
+export class Text {
+  text = "";
+  fixes = 0;
+  comments = 0;
+  generateReport(): void {
+    this.countComments();
+    this.countDuplicatedWords();
+  }
+  countDuplicatedWhitespaces(): void {
+    this.fixes = this.text.split("  ").length;
+  }
+  countComments(): void {
+    this.comments = this.text.split("//").length;
+  }
+  countDuplicatedWords(): void {
+    this.fixes = this.text.split(" ").length;
+  }
+}

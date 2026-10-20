@@ -1,0 +1,44 @@
+# Both sides call the same callee, which assigns its own local; the local is not shared state.
+--- expect
+{"alerts":[]}
+--- base
+export class Svc {
+  run(): number {
+    const a = 1;
+    const b = 2;
+    return a + b;
+  }
+  one(): number {
+    let tmp = 0;
+    tmp = 1;
+    return tmp;
+  }
+}
+--- left
+export class Svc {
+  run(): number {
+    this.one();
+    const a = 1;
+    const b = 2;
+    return a + b;
+  }
+  one(): number {
+    let tmp = 0;
+    tmp = 1;
+    return tmp;
+  }
+}
+--- right
+export class Svc {
+  run(): number {
+    const a = 1;
+    const b = 2;
+    this.one();
+    return a + b;
+  }
+  one(): number {
+    let tmp = 0;
+    tmp = 1;
+    return tmp;
+  }
+}

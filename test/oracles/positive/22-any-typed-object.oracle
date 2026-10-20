@@ -1,0 +1,23 @@
+# Property writes through a value typed any: reported, with low confidence.
+--- expect
+{"alerts":[{"element":"o.a","first":"Left run","second":"Right run","confidence":"low"}],"limitations":["any-type"]}
+--- base
+export function run(o: any): number {
+  const c = 1;
+  const d = 2;
+  return c + d;
+}
+--- left
+export function run(o: any): number {
+  o.a = 1;
+  const c = 1;
+  const d = 2;
+  return c + d;
+}
+--- right
+export function run(o: any): number {
+  const c = 1;
+  const d = 2;
+  o.a = 2;
+  return c + d;
+}

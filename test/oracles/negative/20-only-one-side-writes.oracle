@@ -1,0 +1,27 @@
+# Left writes the variable twice; Right does not touch it.
+--- expect
+{"alerts":[]}
+--- base
+export function run(): number {
+  let x = 0;
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- left
+export function run(): number {
+  let x = 0;
+  x = 1;
+  x = 2;
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- right
+export function run(): number {
+  let x = 0;
+  const a = 1;
+  const b = 2;
+  const r = 5;
+  return a + b;
+}

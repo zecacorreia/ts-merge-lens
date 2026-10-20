@@ -1,0 +1,26 @@
+# Left writes x, but the only reader is Base code, which is not a change of the other side.
+--- expect
+{"analyses":["df"],"alerts":[]}
+--- base
+export function run(): number {
+  let x = 0;
+  const a = 1;
+  const b = 2;
+  return x + a + b;
+}
+--- left
+export function run(): number {
+  let x = 0;
+  x = 1;
+  const a = 1;
+  const b = 2;
+  return x + a + b;
+}
+--- right
+export function run(): number {
+  let x = 0;
+  const a = 1;
+  const b = 2;
+  const r = 5;
+  return x + a + b;
+}

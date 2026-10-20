@@ -1,0 +1,53 @@
+# Callees write different fields.
+--- expect
+{"alerts":[]}
+--- base
+export class Svc {
+  fixes = 0;
+  comments = 0;
+  run(): number {
+    const a = 1;
+    const b = 2;
+    return a + b;
+  }
+  setFixes(): void {
+    this.fixes = 1;
+  }
+  setComments(): void {
+    this.comments = 1;
+  }
+}
+--- left
+export class Svc {
+  fixes = 0;
+  comments = 0;
+  run(): number {
+    this.setFixes();
+    const a = 1;
+    const b = 2;
+    return a + b;
+  }
+  setFixes(): void {
+    this.fixes = 1;
+  }
+  setComments(): void {
+    this.comments = 1;
+  }
+}
+--- right
+export class Svc {
+  fixes = 0;
+  comments = 0;
+  run(): number {
+    const a = 1;
+    const b = 2;
+    this.setComments();
+    return a + b;
+  }
+  setFixes(): void {
+    this.fixes = 1;
+  }
+  setComments(): void {
+    this.comments = 1;
+  }
+}

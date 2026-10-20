@@ -1,0 +1,26 @@
+# A call through an any-typed callee cannot be followed; it is counted as a limitation.
+--- expect
+{"alerts":[],"limitations":["unresolved-call"]}
+--- base
+export function run(f: any): number {
+  let x = 0;
+  const a = 1;
+  const b = 2;
+  return x + a + b;
+}
+--- left
+export function run(f: any): number {
+  let x = 0;
+  f();
+  const a = 1;
+  const b = 2;
+  return x + a + b;
+}
+--- right
+export function run(f: any): number {
+  let x = 0;
+  const a = 1;
+  const b = 2;
+  x = 2;
+  return x + a + b;
+}

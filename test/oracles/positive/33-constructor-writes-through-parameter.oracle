@@ -1,0 +1,47 @@
+# Constructors called with new write the shared object passed as an argument.
+--- expect
+{"alerts":[{"element":"shared.n","first":"Left Setter.constructor","second":"Right Setter.constructor"}]}
+--- base
+interface Shared {
+  n: number;
+}
+class Setter {
+  constructor(target: Shared, n: number) {
+    target.n = n;
+  }
+}
+export function run(shared: Shared): number {
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- left
+interface Shared {
+  n: number;
+}
+class Setter {
+  constructor(target: Shared, n: number) {
+    target.n = n;
+  }
+}
+export function run(shared: Shared): number {
+  new Setter(shared, 1);
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- right
+interface Shared {
+  n: number;
+}
+class Setter {
+  constructor(target: Shared, n: number) {
+    target.n = n;
+  }
+}
+export function run(shared: Shared): number {
+  const a = 1;
+  const b = 2;
+  new Setter(shared, 2);
+  return a + b;
+}

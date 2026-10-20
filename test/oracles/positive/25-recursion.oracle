@@ -1,0 +1,50 @@
+# The Left callee is recursive; the analysis terminates and still finds the overwrite.
+--- expect
+{"alerts":[{"element":"this.v","first":"Left Rec.fill","second":"Right Rec.run"}]}
+--- base
+export class Rec {
+  v = 0;
+  run(): number {
+    const a = 1;
+    const b = 2;
+    return a + b;
+  }
+  fill(n: number): void {
+    if (n > 0) {
+      this.v = n;
+      this.fill(n - 1);
+    }
+  }
+}
+--- left
+export class Rec {
+  v = 0;
+  run(): number {
+    this.fill(2);
+    const a = 1;
+    const b = 2;
+    return a + b;
+  }
+  fill(n: number): void {
+    if (n > 0) {
+      this.v = n;
+      this.fill(n - 1);
+    }
+  }
+}
+--- right
+export class Rec {
+  v = 0;
+  run(): number {
+    const a = 1;
+    const b = 2;
+    this.v = 9;
+    return a + b;
+  }
+  fill(n: number): void {
+    if (n > 0) {
+      this.v = n;
+      this.fill(n - 1);
+    }
+  }
+}

@@ -1,0 +1,80 @@
+# The read sits at the end of a three-function cycle, so the summaries need several rounds.
+--- expect
+{"analyses":["df"],"alerts":[{"type":"DF","element":"this.v","first":"Left Cycle.setV","second":"Right Cycle.c"}]}
+--- base
+export class Cycle {
+  v = 0;
+  n = 0;
+  run(): number {
+    const a = 1;
+    const b = 2;
+    return a + b;
+  }
+  setV(): void {
+    this.v = 1;
+  }
+  a(): void {
+    this.b();
+  }
+  b(): void {
+    this.c();
+  }
+  c(): void {
+    const r = this.v;
+    if (this.n > 9) {
+      this.a();
+    }
+  }
+}
+--- left
+export class Cycle {
+  v = 0;
+  n = 0;
+  run(): number {
+    this.setV();
+    const a = 1;
+    const b = 2;
+    return a + b;
+  }
+  setV(): void {
+    this.v = 1;
+  }
+  a(): void {
+    this.b();
+  }
+  b(): void {
+    this.c();
+  }
+  c(): void {
+    const r = this.v;
+    if (this.n > 9) {
+      this.a();
+    }
+  }
+}
+--- right
+export class Cycle {
+  v = 0;
+  n = 0;
+  run(): number {
+    const a = 1;
+    const b = 2;
+    this.a();
+    return a + b;
+  }
+  setV(): void {
+    this.v = 1;
+  }
+  a(): void {
+    this.b();
+  }
+  b(): void {
+    this.c();
+  }
+  c(): void {
+    const r = this.v;
+    if (this.n > 9) {
+      this.a();
+    }
+  }
+}

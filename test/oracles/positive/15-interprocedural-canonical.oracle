@@ -1,0 +1,59 @@
+# The canonical example: each side adds a call whose callee writes this.fixes.
+--- expect
+{"alerts":[{"element":"this.fixes","first":"Left Text.countDuplicatedWhitespaces","second":"Right Text.countDuplicatedWords"}]}
+--- base
+export class Text {
+  text = "";
+  fixes = 0;
+  comments = 0;
+  generateReport(): void {
+    this.countComments();
+  }
+  countDuplicatedWhitespaces(): void {
+    this.fixes = this.text.split("  ").length;
+  }
+  countComments(): void {
+    this.comments = this.text.split("//").length;
+  }
+  countDuplicatedWords(): void {
+    this.fixes = this.text.split(" ").length;
+  }
+}
+--- left
+export class Text {
+  text = "";
+  fixes = 0;
+  comments = 0;
+  generateReport(): void {
+    this.countDuplicatedWhitespaces();
+    this.countComments();
+  }
+  countDuplicatedWhitespaces(): void {
+    this.fixes = this.text.split("  ").length;
+  }
+  countComments(): void {
+    this.comments = this.text.split("//").length;
+  }
+  countDuplicatedWords(): void {
+    this.fixes = this.text.split(" ").length;
+  }
+}
+--- right
+export class Text {
+  text = "";
+  fixes = 0;
+  comments = 0;
+  generateReport(): void {
+    this.countComments();
+    this.countDuplicatedWords();
+  }
+  countDuplicatedWhitespaces(): void {
+    this.fixes = this.text.split("  ").length;
+  }
+  countComments(): void {
+    this.comments = this.text.split("//").length;
+  }
+  countDuplicatedWords(): void {
+    this.fixes = this.text.split(" ").length;
+  }
+}

@@ -1,0 +1,50 @@
+# The call goes through an abstract method; its implementation is found with the language service.
+--- expect
+{"alerts":[{"element":"item.v","first":"Left Impl.set","second":"Right Impl.set"}]}
+--- base
+abstract class Base {
+  v = 0;
+  abstract set(n: number): void;
+}
+class Impl extends Base {
+  set(n: number): void {
+    this.v = n;
+  }
+}
+export function run(item: Base): number {
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- left
+abstract class Base {
+  v = 0;
+  abstract set(n: number): void;
+}
+class Impl extends Base {
+  set(n: number): void {
+    this.v = n;
+  }
+}
+export function run(item: Base): number {
+  item.set(1);
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- right
+abstract class Base {
+  v = 0;
+  abstract set(n: number): void;
+}
+class Impl extends Base {
+  set(n: number): void {
+    this.v = n;
+  }
+}
+export function run(item: Base): number {
+  const a = 1;
+  const b = 2;
+  item.set(2);
+  return a + b;
+}

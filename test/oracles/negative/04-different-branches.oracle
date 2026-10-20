@@ -1,0 +1,29 @@
+# The writes are in the two arms of an if/else: they never both execute.
+--- expect
+{"alerts":[]}
+--- base
+export function run(c: boolean): number {
+  let x = 0;
+  if (c) {
+  } else {
+  }
+  return x;
+}
+--- left
+export function run(c: boolean): number {
+  let x = 0;
+  if (c) {
+    x = 1;
+  } else {
+  }
+  return x;
+}
+--- right
+export function run(c: boolean): number {
+  let x = 0;
+  if (c) {
+  } else {
+    x = 2;
+  }
+  return x;
+}

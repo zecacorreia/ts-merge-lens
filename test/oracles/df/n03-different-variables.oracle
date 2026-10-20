@@ -1,0 +1,29 @@
+# Right reads a variable Left did not write.
+--- expect
+{"analyses":["df"],"alerts":[]}
+--- base
+export function run(): number {
+  let x = 0;
+  let z = 0;
+  const a = 1;
+  const b = 2;
+  return z + a + b;
+}
+--- left
+export function run(): number {
+  let x = 0;
+  let z = 0;
+  x = 1;
+  const a = 1;
+  const b = 2;
+  return z + a + b;
+}
+--- right
+export function run(): number {
+  let x = 0;
+  let z = 0;
+  const a = 1;
+  const b = 2;
+  const y = z;
+  return z + a + b;
+}

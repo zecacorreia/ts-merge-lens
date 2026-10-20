@@ -1,0 +1,35 @@
+# Left assigns two fields by destructuring; Right assigns one of them.
+--- expect
+{"alerts":[{"element":"this.b","first":"Left Pair.run","second":"Right Pair.run"}]}
+--- base
+export class Pair {
+  a = 0;
+  b = 0;
+  run(): number {
+    const c = 1;
+    const d = 2;
+    return c + d;
+  }
+}
+--- left
+export class Pair {
+  a = 0;
+  b = 0;
+  run(): number {
+    [this.a, this.b] = [1, 2];
+    const c = 1;
+    const d = 2;
+    return c + d;
+  }
+}
+--- right
+export class Pair {
+  a = 0;
+  b = 0;
+  run(): number {
+    const c = 1;
+    const d = 2;
+    this.b = 3;
+    return c + d;
+  }
+}

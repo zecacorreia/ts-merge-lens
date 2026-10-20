@@ -1,0 +1,28 @@
+# Left writes inside an if; the write may reach Right read.
+--- expect
+{"analyses":["df"],"alerts":[{"type":"DF","element":"x","first":"Left run","second":"Right run"}]}
+--- base
+export function run(): number {
+  let x = 0;
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- left
+export function run(): number {
+  let x = 0;
+  if (a > 0) {
+    x = 1;
+  }
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- right
+export function run(): number {
+  let x = 0;
+  const a = 1;
+  const b = 2;
+  const y = x;
+  return a + b;
+}

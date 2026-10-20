@@ -1,0 +1,32 @@
+# The same field of two different objects.
+--- expect
+{"alerts":[]}
+--- base
+class Cell {
+  v = 0;
+}
+export function run(p: Cell, q: Cell): number {
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- left
+class Cell {
+  v = 0;
+}
+export function run(p: Cell, q: Cell): number {
+  p.v = 1;
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- right
+class Cell {
+  v = 0;
+}
+export function run(p: Cell, q: Cell): number {
+  const a = 1;
+  const b = 2;
+  q.v = 2;
+  return a + b;
+}

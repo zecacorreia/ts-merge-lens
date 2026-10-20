@@ -1,0 +1,34 @@
+# Left renames a local variable; Right then writes the field Left still assigns.
+--- expect
+{"byFilter":{"off":[{"element":"this.v","first":"Left Doc.run","second":"Right Doc.run"}],"downgrade":[{"element":"this.v","first":"Left Doc.run","second":"Right Doc.run","confidence":"low"}],"suppress":[]},"alerts":[{"element":"this.v","first":"Left Doc.run","second":"Right Doc.run"}]}
+--- base
+export class Doc {
+  v = 0;
+  run(): number {
+    const tmp = 1;
+    this.v = tmp;
+    const b = 2;
+    return b;
+  }
+}
+--- left
+export class Doc {
+  v = 0;
+  run(): number {
+    const value = 1;
+    this.v = value;
+    const b = 2;
+    return b;
+  }
+}
+--- right
+export class Doc {
+  v = 0;
+  run(): number {
+    const tmp = 1;
+    this.v = tmp;
+    const b = 2;
+    this.v = 2;
+    return b;
+  }
+}

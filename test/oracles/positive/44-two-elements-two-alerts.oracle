@@ -1,0 +1,31 @@
+# Two different variables are overwritten: one alert each.
+--- expect
+{"alerts":[{"element":"x","first":"Left run","second":"Right run"},{"element":"y","first":"Left run","second":"Right run"}]}
+--- base
+export function run(): number {
+  let x = 0;
+  let y = 0;
+  const a = 1;
+  const b = 2;
+  return x + y + a + b;
+}
+--- left
+export function run(): number {
+  let x = 0;
+  let y = 0;
+  x = 1;
+  y = 1;
+  const a = 1;
+  const b = 2;
+  return x + y + a + b;
+}
+--- right
+export function run(): number {
+  let x = 0;
+  let y = 0;
+  const a = 1;
+  const b = 2;
+  x = 2;
+  y = 2;
+  return x + y + a + b;
+}

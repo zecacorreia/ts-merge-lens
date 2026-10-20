@@ -1,0 +1,41 @@
+# Both sides call a method on the same object; `this` of the callee is that object.
+--- expect
+{"alerts":[{"element":"cell.v","first":"Left Cell.set","second":"Right Cell.set"}]}
+--- base
+class Cell {
+  v = 0;
+  set(n: number): void {
+    this.v = n;
+  }
+}
+export function run(cell: Cell): number {
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- left
+class Cell {
+  v = 0;
+  set(n: number): void {
+    this.v = n;
+  }
+}
+export function run(cell: Cell): number {
+  cell.set(1);
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- right
+class Cell {
+  v = 0;
+  set(n: number): void {
+    this.v = n;
+  }
+}
+export function run(cell: Cell): number {
+  const a = 1;
+  const b = 2;
+  cell.set(2);
+  return a + b;
+}

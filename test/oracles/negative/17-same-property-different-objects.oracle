@@ -1,0 +1,29 @@
+# Same property name on two different module-level objects.
+--- expect
+{"alerts":[]}
+--- base
+const first = { v: 0 };
+const second = { v: 0 };
+export function run(): number {
+  const a = 1;
+  const b = 2;
+  return a + b + first.v + second.v;
+}
+--- left
+const first = { v: 0 };
+const second = { v: 0 };
+export function run(): number {
+  first.v = 1;
+  const a = 1;
+  const b = 2;
+  return a + b + first.v + second.v;
+}
+--- right
+const first = { v: 0 };
+const second = { v: 0 };
+export function run(): number {
+  const a = 1;
+  const b = 2;
+  second.v = 2;
+  return a + b + first.v + second.v;
+}

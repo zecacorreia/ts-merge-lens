@@ -1,0 +1,29 @@
+# Write and read are in the two arms of an if/else.
+--- expect
+{"analyses":["df"],"alerts":[]}
+--- base
+export function run(c: boolean): number {
+  let x = 0;
+  if (c) {
+  } else {
+  }
+  return x;
+}
+--- left
+export function run(c: boolean): number {
+  let x = 0;
+  if (c) {
+    x = 1;
+  } else {
+  }
+  return x;
+}
+--- right
+export function run(c: boolean): number {
+  let x = 0;
+  if (c) {
+  } else {
+    const y = x;
+  }
+  return x;
+}

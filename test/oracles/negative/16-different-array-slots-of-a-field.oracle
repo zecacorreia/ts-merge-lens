@@ -1,0 +1,32 @@
+# this.items[0] and this.items[1].
+--- expect
+{"alerts":[]}
+--- base
+export class Bag {
+  items: number[] = [];
+  run(): number {
+    const a = 1;
+    const b = 2;
+    return a + b;
+  }
+}
+--- left
+export class Bag {
+  items: number[] = [];
+  run(): number {
+    this.items[0] = 1;
+    const a = 1;
+    const b = 2;
+    return a + b;
+  }
+}
+--- right
+export class Bag {
+  items: number[] = [];
+  run(): number {
+    const a = 1;
+    const b = 2;
+    this.items[1] = 2;
+    return a + b;
+  }
+}

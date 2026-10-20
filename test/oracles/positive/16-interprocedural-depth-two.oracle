@@ -1,0 +1,65 @@
+# The writes are two calls deep on each side.
+--- expect
+{"alerts":[{"element":"this.v","first":"Left Flow.setOne","second":"Right Flow.setTwo"}]}
+--- base
+export class Flow {
+  v = 0;
+  run(): void {
+    this.keep();
+  }
+  keep(): void {}
+  stepOne(): void {
+    this.setOne();
+  }
+  setOne(): void {
+    this.v = 1;
+  }
+  stepTwo(): void {
+    this.setTwo();
+  }
+  setTwo(): void {
+    this.v = 2;
+  }
+}
+--- left
+export class Flow {
+  v = 0;
+  run(): void {
+    this.stepOne();
+    this.keep();
+  }
+  keep(): void {}
+  stepOne(): void {
+    this.setOne();
+  }
+  setOne(): void {
+    this.v = 1;
+  }
+  stepTwo(): void {
+    this.setTwo();
+  }
+  setTwo(): void {
+    this.v = 2;
+  }
+}
+--- right
+export class Flow {
+  v = 0;
+  run(): void {
+    this.keep();
+    this.stepTwo();
+  }
+  keep(): void {}
+  stepOne(): void {
+    this.setOne();
+  }
+  setOne(): void {
+    this.v = 1;
+  }
+  stepTwo(): void {
+    this.setTwo();
+  }
+  setTwo(): void {
+    this.v = 2;
+  }
+}

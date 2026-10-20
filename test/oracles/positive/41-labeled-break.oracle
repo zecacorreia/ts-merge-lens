@@ -1,0 +1,29 @@
+# Left writes then breaks out of a labelled loop.
+--- expect
+{"alerts":[{"element":"x","first":"Left run","second":"Right run"}]}
+--- base
+export function run(): number {
+  let x = 0;
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- left
+export function run(): number {
+  let x = 0;
+  outer: for (const v of [1, 2]) {
+    x = v;
+    break outer;
+  }
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- right
+export function run(): number {
+  let x = 0;
+  const a = 1;
+  const b = 2;
+  x = 9;
+  return a + b;
+}

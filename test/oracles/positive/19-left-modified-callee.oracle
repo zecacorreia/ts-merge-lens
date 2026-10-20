@@ -1,0 +1,42 @@
+# Left adds the write inside an unchanged callee (labelled L by itself); Right writes in the unit.
+--- expect
+{"alerts":[{"element":"this.v","first":"Left Svc.helper","second":"Right Svc.run"}]}
+--- base
+export class Svc {
+  v = 0;
+  run(): number {
+    const a = 1;
+    this.helper();
+    const b = 2;
+    return a + b;
+  }
+  helper(): void {
+  }
+}
+--- left
+export class Svc {
+  v = 0;
+  run(): number {
+    const c = 3;
+    const a = 1;
+    this.helper();
+    const b = 2;
+    return a + b;
+  }
+  helper(): void {
+    this.v = 1;
+  }
+}
+--- right
+export class Svc {
+  v = 0;
+  run(): number {
+    const a = 1;
+    this.helper();
+    const b = 2;
+    this.v = 2;
+    return a + b;
+  }
+  helper(): void {
+  }
+}

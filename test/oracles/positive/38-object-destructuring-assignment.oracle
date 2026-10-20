@@ -1,0 +1,29 @@
+# Left assigns x and y by object destructuring (shorthand and renamed targets); Right assigns x.
+--- expect
+{"alerts":[{"element":"x","first":"Left run","second":"Right run"}]}
+--- base
+export function run(): number {
+  let x = 0;
+  let y = 0;
+  const a = 1;
+  const b = 2;
+  return x + y + a + b;
+}
+--- left
+export function run(): number {
+  let x = 0;
+  let y = 0;
+  ({ x, k: y } = { x: 1, k: 2 });
+  const a = 1;
+  const b = 2;
+  return x + y + a + b;
+}
+--- right
+export function run(): number {
+  let x = 0;
+  let y = 0;
+  const a = 1;
+  const b = 2;
+  x = 3;
+  return x + y + a + b;
+}

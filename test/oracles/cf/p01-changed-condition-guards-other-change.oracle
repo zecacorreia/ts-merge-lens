@@ -1,0 +1,28 @@
+# Left strengthens an if condition; Right adds a statement inside that if.
+--- expect
+{"analyses":["cf"],"alerts":[{"type":"CF","first":"Left run","second":"Right run"}]}
+--- base
+export function run(c: boolean, ok: boolean): number {
+  let x = 0;
+  if (c) {
+    const a = 1;
+  }
+  return x;
+}
+--- left
+export function run(c: boolean, ok: boolean): number {
+  let x = 0;
+  if (c && ok) {
+    const a = 1;
+  }
+  return x;
+}
+--- right
+export function run(c: boolean, ok: boolean): number {
+  let x = 0;
+  if (c) {
+    const a = 1;
+    x = 2;
+  }
+  return x;
+}

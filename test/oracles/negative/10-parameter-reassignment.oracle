@@ -1,0 +1,32 @@
+# A callee reassigns its (by-value) parameter; the caller state is untouched.
+--- expect
+{"alerts":[]}
+--- base
+function bump(n: number): void {
+  n = n + 1;
+}
+export function run(x: number): number {
+  const a = 1;
+  const b = 2;
+  return x + a + b;
+}
+--- left
+function bump(n: number): void {
+  n = n + 1;
+}
+export function run(x: number): number {
+  bump(x);
+  const a = 1;
+  const b = 2;
+  return x + a + b;
+}
+--- right
+function bump(n: number): void {
+  n = n + 1;
+}
+export function run(x: number): number {
+  const a = 1;
+  const b = 2;
+  bump(x);
+  return x + a + b;
+}

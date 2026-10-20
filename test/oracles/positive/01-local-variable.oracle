@@ -1,0 +1,26 @@
+# Both sides assign the same local variable; Right runs last and overrides Left.
+--- expect
+{"alerts":[{"element":"x","first":"Left run","second":"Right run"}]}
+--- base
+export function run(): number {
+  let x = 0;
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- left
+export function run(): number {
+  let x = 0;
+  x = 1;
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- right
+export function run(): number {
+  let x = 0;
+  const a = 1;
+  const b = 2;
+  x = 2;
+  return a + b;
+}

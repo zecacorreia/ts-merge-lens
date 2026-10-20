@@ -1,0 +1,29 @@
+# A Base write to x between the two writes: Right no longer overrides Left.
+--- expect
+{"alerts":[]}
+--- base
+export function run(): number {
+  let x = 0;
+  const a = 1;
+  x = a;
+  const b = 2;
+  return x + b;
+}
+--- left
+export function run(): number {
+  let x = 0;
+  x = 5;
+  const a = 1;
+  x = a;
+  const b = 2;
+  return x + b;
+}
+--- right
+export function run(): number {
+  let x = 0;
+  const a = 1;
+  x = a;
+  const b = 2;
+  x = 6;
+  return x + b;
+}

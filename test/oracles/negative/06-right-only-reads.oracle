@@ -1,0 +1,26 @@
+# Right reads the variable Left wrote; reads do not override.
+--- expect
+{"alerts":[]}
+--- base
+export function run(): number {
+  let x = 0;
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- left
+export function run(): number {
+  let x = 0;
+  x = 1;
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- right
+export function run(): number {
+  let x = 0;
+  const a = 1;
+  const b = 2;
+  const r = x;
+  return a + b;
+}

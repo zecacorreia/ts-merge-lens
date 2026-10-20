@@ -1,0 +1,43 @@
+# Left renames a method and its call site; Right then writes the same field.
+--- expect
+{"byFilter":{"off":[{"element":"this.v","first":"Left Doc.increment","second":"Right Doc.run"}],"downgrade":[{"element":"this.v","first":"Left Doc.increment","second":"Right Doc.run","confidence":"low"}],"suppress":[]},"alerts":[{"element":"this.v","first":"Left Doc.increment","second":"Right Doc.run"}]}
+--- base
+export class Doc {
+  v = 0;
+  run(): number {
+    const a = 1;
+    this.bump();
+    const b = 2;
+    return a + b;
+  }
+  bump(): void {
+    this.v = 1;
+  }
+}
+--- left
+export class Doc {
+  v = 0;
+  run(): number {
+    const a = 1;
+    this.increment();
+    const b = 2;
+    return a + b;
+  }
+  increment(): void {
+    this.v = 1;
+  }
+}
+--- right
+export class Doc {
+  v = 0;
+  run(): number {
+    const a = 1;
+    this.bump();
+    const b = 2;
+    this.v = 2;
+    return a + b;
+  }
+  bump(): void {
+    this.v = 1;
+  }
+}

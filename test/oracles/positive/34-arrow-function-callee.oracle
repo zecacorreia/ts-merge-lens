@@ -1,0 +1,41 @@
+# The callee is an arrow function stored in a constant.
+--- expect
+{"alerts":[{"element":"box.n","first":"Left setIt","second":"Right setIt"}]}
+--- base
+interface Box {
+  n: number;
+}
+const setIt = (o: Box, n: number): void => {
+  o.n = n;
+};
+export function run(box: Box): number {
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- left
+interface Box {
+  n: number;
+}
+const setIt = (o: Box, n: number): void => {
+  o.n = n;
+};
+export function run(box: Box): number {
+  setIt(box, 1);
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- right
+interface Box {
+  n: number;
+}
+const setIt = (o: Box, n: number): void => {
+  o.n = n;
+};
+export function run(box: Box): number {
+  const a = 1;
+  const b = 2;
+  setIt(box, 2);
+  return a + b;
+}

@@ -1,0 +1,31 @@
+# Left changes the condition; Right adds a statement after the if, outside its reach.
+--- expect
+{"analyses":["cf"],"alerts":[]}
+--- base
+export function run(c: boolean, ok: boolean): number {
+  let x = 0;
+  if (c) {
+    const a = 1;
+  }
+  const d = 2;
+  return x;
+}
+--- left
+export function run(c: boolean, ok: boolean): number {
+  let x = 0;
+  if (c && ok) {
+    const a = 1;
+  }
+  const d = 2;
+  return x;
+}
+--- right
+export function run(c: boolean, ok: boolean): number {
+  let x = 0;
+  if (c) {
+    const a = 1;
+  }
+  const d = 2;
+  x = 3;
+  return x;
+}

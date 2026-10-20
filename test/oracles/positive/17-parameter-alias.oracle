@@ -1,0 +1,50 @@
+# Callees write through a parameter; both calls receive the same object.
+--- expect
+{"alerts":[{"element":"box.n","first":"Left setOne","second":"Right setTwo"}]}
+--- base
+interface Box {
+  n: number;
+}
+function setOne(target: Box): void {
+  target.n = 1;
+}
+function setTwo(target: Box): void {
+  target.n = 2;
+}
+export function run(box: Box): number {
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- left
+interface Box {
+  n: number;
+}
+function setOne(target: Box): void {
+  target.n = 1;
+}
+function setTwo(target: Box): void {
+  target.n = 2;
+}
+export function run(box: Box): number {
+  setOne(box);
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- right
+interface Box {
+  n: number;
+}
+function setOne(target: Box): void {
+  target.n = 1;
+}
+function setTwo(target: Box): void {
+  target.n = 2;
+}
+export function run(box: Box): number {
+  const a = 1;
+  const b = 2;
+  setTwo(box);
+  return a + b;
+}

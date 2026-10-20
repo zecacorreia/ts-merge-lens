@@ -1,0 +1,89 @@
+# The write and the read are inside callees; their summaries carry the access to the unit.
+--- expect
+{"analyses":["df"],"alerts":[{"type":"DF","element":"this.v","first":"Left Box.setV","second":"Right Box.getV"}]}
+--- base
+export class Box {
+  v = 0;
+  w = 0;
+  run(): number {
+    const a = 1;
+    const b = 2;
+    return a + b;
+  }
+  setV(): void {
+    this.v = 1;
+  }
+  getV(): number {
+    return this.v;
+  }
+  getW(): number {
+    return this.w;
+  }
+  outer(): number {
+    return this.getV();
+  }
+  read(n: number): number {
+    if (n > 0) {
+      this.read(n - 1);
+    }
+    return this.v;
+  }
+}
+--- left
+export class Box {
+  v = 0;
+  w = 0;
+  run(): number {
+    this.setV();
+    const a = 1;
+    const b = 2;
+    return a + b;
+  }
+  setV(): void {
+    this.v = 1;
+  }
+  getV(): number {
+    return this.v;
+  }
+  getW(): number {
+    return this.w;
+  }
+  outer(): number {
+    return this.getV();
+  }
+  read(n: number): number {
+    if (n > 0) {
+      this.read(n - 1);
+    }
+    return this.v;
+  }
+}
+--- right
+export class Box {
+  v = 0;
+  w = 0;
+  run(): number {
+    const a = 1;
+    const b = 2;
+    const r = this.getV();
+    return a + b;
+  }
+  setV(): void {
+    this.v = 1;
+  }
+  getV(): number {
+    return this.v;
+  }
+  getW(): number {
+    return this.w;
+  }
+  outer(): number {
+    return this.getV();
+  }
+  read(n: number): number {
+    if (n > 0) {
+      this.read(n - 1);
+    }
+    return this.v;
+  }
+}

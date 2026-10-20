@@ -1,0 +1,28 @@
+# Left writes in a loop body (which may run); Right writes afterwards.
+--- expect
+{"alerts":[{"element":"x","first":"Left run","second":"Right run"}]}
+--- base
+export function run(): number {
+  let x = 0;
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- left
+export function run(): number {
+  let x = 0;
+  for (let i = 0; i < 3; i++) {
+    x = i;
+  }
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- right
+export function run(): number {
+  let x = 0;
+  const a = 1;
+  const b = 2;
+  x = 9;
+  return a + b;
+}

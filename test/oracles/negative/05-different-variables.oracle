@@ -1,0 +1,29 @@
+# Each side writes its own variable.
+--- expect
+{"alerts":[]}
+--- base
+export function run(): number {
+  let x = 0;
+  let y = 0;
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- left
+export function run(): number {
+  let x = 0;
+  let y = 0;
+  x = 1;
+  const a = 1;
+  const b = 2;
+  return a + b;
+}
+--- right
+export function run(): number {
+  let x = 0;
+  let y = 0;
+  const a = 1;
+  const b = 2;
+  y = 2;
+  return a + b;
+}

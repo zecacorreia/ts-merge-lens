@@ -1,0 +1,32 @@
+# Both writes happen in the same branch of an if.
+--- expect
+{"alerts":[{"element":"x","first":"Left run","second":"Right run"}]}
+--- base
+export function run(c: boolean): number {
+  let x = 0;
+  if (c) {
+    const a = 1;
+    const b = 2;
+  }
+  return x;
+}
+--- left
+export function run(c: boolean): number {
+  let x = 0;
+  if (c) {
+    x = 1;
+    const a = 1;
+    const b = 2;
+  }
+  return x;
+}
+--- right
+export function run(c: boolean): number {
+  let x = 0;
+  if (c) {
+    const a = 1;
+    const b = 2;
+    x = 2;
+  }
+  return x;
+}

@@ -1,0 +1,41 @@
+# A nested path this.stats.count.
+--- expect
+{"alerts":[{"element":"this.stats.count","first":"Left Report.run","second":"Right Report.run"}]}
+--- base
+interface Stats {
+  count: number;
+}
+export class Report {
+  stats: Stats = { count: 0 };
+  run(): number {
+    const a = 1;
+    const b = 2;
+    return a + b;
+  }
+}
+--- left
+interface Stats {
+  count: number;
+}
+export class Report {
+  stats: Stats = { count: 0 };
+  run(): number {
+    this.stats.count = 1;
+    const a = 1;
+    const b = 2;
+    return a + b;
+  }
+}
+--- right
+interface Stats {
+  count: number;
+}
+export class Report {
+  stats: Stats = { count: 0 };
+  run(): number {
+    const a = 1;
+    const b = 2;
+    this.stats.count = 2;
+    return a + b;
+  }
+}
